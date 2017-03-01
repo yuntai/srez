@@ -6,7 +6,7 @@ def setup_inputs(sess, filenames, image_size=None, capacity_factor=3):
 
     if image_size is None:
         image_size = FLAGS.sample_size
-    
+
     # Read each JPEG file
     reader = tf.WholeFileReader()
     filename_queue = tf.train.string_input_producer(filenames)
@@ -49,5 +49,5 @@ def setup_inputs(sess, filenames, image_size=None, capacity_factor=3):
                                       name='labels_and_features')
 
     tf.train.start_queue_runners(sess=sess)
-      
+
     return features, labels

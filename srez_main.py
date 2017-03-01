@@ -64,6 +64,9 @@ tf.app.flags.DEFINE_string('train_dir', 'train',
 tf.app.flags.DEFINE_integer('train_time', 20,
                             "Time in minutes to train the model")
 
+tf.app.flags.DEFINE_string('device', '/cpu:0',
+                            "tensorflow device to use /cpu:0 or /gpu:0")
+
 def prepare_dirs(delete_train_dir=False):
     # Create checkpoint dir (do not delete anything)
     if not tf.gfile.Exists(FLAGS.checkpoint_dir):
@@ -90,7 +93,10 @@ def prepare_dirs(delete_train_dir=False):
 
 def setup_tensorflow():
     # Create session
-    config = tf.ConfigProto(log_device_placement=FLAGS.log_device_placement)
+    config = tf.ConfigProto(
+      log_device_placement=FLAGS.log_device_placement,
+      allow_soft_placement=True
+    )
     sess = tf.Session(config=config)
 
     # Initialize rng with a deterministic seed
@@ -119,10 +125,11 @@ def _demo():
     features, labels = srez_input.setup_inputs(sess, filenames)
 
     # Create and initialize model
-    [gene_minput, gene_moutput,
-     gene_output, gene_var_list,
-     disc_real_output, disc_fake_output, disc_var_list] = \
-            srez_model.create_model(sess, features, labels)
+    with tf.device(FLAGS.device):
+      [gene_minput, gene_moutput,
+       gene_output, gene_var_list,
+       disc_real_output, disc_fake_output, disc_var_list] = \
+              srez_model.create_model(sess, features, labels)
 
     # Restore variables from checkpoint
     saver = tf.train.Saver()
@@ -160,19 +167,20 @@ def _train():
                            tf.random_normal(train_features.get_shape(), stddev=noise_level)
 
     # Create and initialize model
-    [gene_minput, gene_moutput,
-     gene_output, gene_var_list,
-     disc_real_output, disc_fake_output, disc_var_list] = \
-            srez_model.create_model(sess, noisy_train_features, train_labels)
+    with tf.device(FLAGS.device):
+      [gene_minput, gene_moutput,
+       gene_output, gene_var_list,
+       disc_real_output, disc_fake_output, disc_var_list] = \
+              srez_model.create_model(sess, noisy_train_features, train_labels)
 
-    gene_loss = srez_model.create_generator_loss(disc_fake_output, gene_output, train_features)
-    disc_real_loss, disc_fake_loss = \
-                     srez_model.create_discriminator_loss(disc_real_output, disc_fake_output)
-    disc_loss = tf.add(disc_real_loss, disc_fake_loss, name='disc_loss')
+      gene_loss = srez_model.create_generator_loss(disc_fake_output, gene_output, train_features)
+      disc_real_loss, disc_fake_loss = \
+                       srez_model.create_discriminator_loss(disc_real_output, disc_fake_output)
+      disc_loss = tf.add(disc_real_loss, disc_fake_loss, name='disc_loss')
 
-    (global_step, learning_rate, gene_minimize, disc_minimize) = \
-            srez_model.create_optimizers(gene_loss, gene_var_list,
-                                         disc_loss, disc_var_list)
+      (global_step, learning_rate, gene_minimize, disc_minimize) = \
+              srez_model.create_optimizers(gene_loss, gene_var_list,
+                                           disc_loss, disc_var_list)
 
     # Train model
     train_data = TrainData(locals())

@@ -25,4 +25,3 @@ def demo1(sess):
     clip      = mpe.ImageSequenceClip(filenames, fps=fps)
     clip.write_videofile(filename)
     print("Done!")
-    

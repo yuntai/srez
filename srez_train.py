@@ -83,7 +83,7 @@ def train_model(train_data):
 
         ops = [td.gene_minimize, td.disc_minimize, td.gene_loss, td.disc_real_loss, td.disc_fake_loss]
         _, _, gene_loss, disc_real_loss, disc_fake_loss = td.sess.run(ops, feed_dict=feed_dict)
-        
+
         if batch % 10 == 0:
             # Show we are alive
             elapsed = int(time.time() - start_time)/60
@@ -95,7 +95,7 @@ def train_model(train_data):
             current_progress = elapsed / FLAGS.train_time
             if current_progress >= 1.0:
                 done = True
-            
+
             # Update learning rate
             if batch % FLAGS.learning_rate_half_life == 0:
                 lrval *= .5
@@ -105,7 +105,7 @@ def train_model(train_data):
             feed_dict = {td.gene_minput: test_feature}
             gene_output = td.sess.run(td.gene_moutput, feed_dict=feed_dict)
             _summarize_progress(td, test_feature, test_label, gene_output, batch, 'out')
-            
+
         if batch % FLAGS.checkpoint_period == 0:
             # Save checkpoint
             _save_checkpoint(td, batch)
