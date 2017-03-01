@@ -57,7 +57,7 @@ tf.app.flags.DEFINE_integer('random_seed', 0,
 
 tf.app.flags.DEFINE_integer('test_vectors', 16,
                             """Number of features to use for testing""")
-                            
+
 tf.app.flags.DEFINE_string('train_dir', 'train',
                            "Output folder where training logs are dumped.")
 
@@ -68,7 +68,7 @@ def prepare_dirs(delete_train_dir=False):
     # Create checkpoint dir (do not delete anything)
     if not tf.gfile.Exists(FLAGS.checkpoint_dir):
         tf.gfile.MakeDirs(FLAGS.checkpoint_dir)
-    
+
     # Cleanup train dir
     if delete_train_dir:
         if tf.gfile.Exists(FLAGS.train_dir):
@@ -96,7 +96,7 @@ def setup_tensorflow():
     # Initialize rng with a deterministic seed
     with sess.graph.as_default():
         tf.set_random_seed(FLAGS.random_seed)
-        
+
     random.seed(FLAGS.random_seed)
     np.random.seed(FLAGS.random_seed)
 
@@ -169,7 +169,7 @@ def _train():
     disc_real_loss, disc_fake_loss = \
                      srez_model.create_discriminator_loss(disc_real_output, disc_fake_output)
     disc_loss = tf.add(disc_real_loss, disc_fake_loss, name='disc_loss')
-    
+
     (global_step, learning_rate, gene_minimize, disc_minimize) = \
             srez_model.create_optimizers(gene_loss, gene_var_list,
                                          disc_loss, disc_var_list)
