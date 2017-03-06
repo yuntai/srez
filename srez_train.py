@@ -3,6 +3,7 @@ import os.path
 import scipy.misc
 import tensorflow as tf
 import time
+import sys
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -29,6 +30,7 @@ def _summarize_progress(train_data, feature, label, gene_output, batch, suffix, 
     filename = os.path.join(FLAGS.train_dir, filename)
     scipy.misc.toimage(image, cmin=0., cmax=1.).save(filename)
     print("    Saved %s" % (filename,))
+    return filename
 
 def _save_checkpoint(train_data, batch):
     td = train_data
@@ -84,16 +86,28 @@ def train_model(train_data):
         ops = [td.gene_minimize, td.disc_minimize, td.gene_loss, td.disc_real_loss, td.disc_fake_loss]
         _, _, gene_loss, disc_real_loss, disc_fake_loss = td.sess.run(ops, feed_dict=feed_dict)
 
-        if batch % 10 == 0:
+        #if batch % 10 == 0:
+        if batch % 100 == 0:
             # Show we are alive
             elapsed = int(time.time() - start_time)/60
-            print('Progress[%3d%%], ETA[%4dm], Batch [%4d], G_Loss[%3.3f], D_Real_Loss[%3.3f], D_Fake_Loss[%3.3f]' %
-                  (int(100*elapsed/FLAGS.train_time), FLAGS.train_time - elapsed,
-                   batch, gene_loss, disc_real_loss, disc_fake_loss))
+            if FLAGS.train_batch_iterations != -1:
+              print('Progress[%3d%%], ETA[%4dm], Batch [%4d], G_Loss[%3.3f], D_Real_Loss[%3.3f], D_Fake_Loss[%3.3f]' %
+                    (int(100*batch/FLAGS.train_batch_iterations),
+                     int(elapsed * (FLAGS.train_batch_iterations/batch - 1.)),
+                     batch, gene_loss, disc_real_loss, disc_fake_loss))
+            else:
+              print('Progress[%3d%%], ETA[%4dm], Batch [%4d], G_Loss[%3.3f], D_Real_Loss[%3.3f], D_Fake_Loss[%3.3f]' %
+                    (int(100*elapsed/FLAGS.train_time), FLAGS.train_time - elapsed,
+                     batch, gene_loss, disc_real_loss, disc_fake_loss))
+            sys.stdout.flush()
 
             # Finished?            
-            current_progress = elapsed / FLAGS.train_time
-            if current_progress >= 1.0:
+            if FLAGS.train_batch_iterations == -1:
+              current_progress = elapsed / FLAGS.train_time
+              if current_progress >= 1.0:
+                  done = True
+            else:
+              if batch >= FLAGS.train_batch_iterations:
                 done = True
 
             # Update learning rate
@@ -112,3 +126,4 @@ def train_model(train_data):
 
     _save_checkpoint(td, batch)
     print('Finished training!')
+    sys.stdout.flush()

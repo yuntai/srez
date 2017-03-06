@@ -48,7 +48,8 @@ class Model:
 
         # TBD: This appears to be very flaky, often raising InvalidArgumentError internally
         with tf.variable_scope(self._get_layer_str()):
-            out = tf.contrib.layers.batch_norm(self.get_output(), scale=scale)
+            # fused=True added per https://www.tensorflow.org/performance/performance_guide
+            out = tf.contrib.layers.batch_norm(self.get_output(), fused=True, scale=scale)
 
         self.outputs.append(out)
         return self

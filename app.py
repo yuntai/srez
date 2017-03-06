@@ -26,6 +26,24 @@ from evaluate import ffwd_to_img
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
 app = Flask(__name__)
 
+def _srez_output(sess, input_path, feature, gene_output, output_path):
+    size = [label.shape[1], label.shape[2]]
+
+    clipped = tf.maximum(tf.minimum(gene_output, 1.0), 0.0)
+
+    image = tf.concat(axis=2, values=[clipped, label])
+    image = image[0:max_samples,:,:,:]
+    image = tf.concat(axis=0, values=[image[i,:,:,:] for i in range(max_samples)])
+    image = sess.run(image)
+
+    scipy.misc.toimage(image, cmin=0., cmax=1.).save(output_path)
+    print("    Saved %s" % (output_path,))
+
+def __():
+  feed_dict = {td.gene_minput: test_feature}
+  gene_output = td.sess.run(td.gene_moutput, feed_dict=feed_dict)
+  _srez_output()
+  _summarize_progress(td, test_feature, test_label, gene_output, batch, 'out')
 
 @app.route('/<path:path>', methods=["POST"])
 def style_transfer(path):

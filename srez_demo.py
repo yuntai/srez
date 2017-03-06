@@ -4,10 +4,11 @@ import numpy.random
 import os.path
 import scipy.misc
 import tensorflow as tf
+import sys
 
 FLAGS = tf.app.flags.FLAGS
 
-def demo1(sess):
+def demo1(sess=None): # sess not used
     """Demo based on images dumped during training"""
 
     # Get images that were dumped during training
@@ -21,7 +22,9 @@ def demo1(sess):
 
     # Create video file from PNGs
     print("Producing video file...")
-    filename  = os.path.join(FLAGS.train_dir, 'demo1.mp4')
+    sys.stdout.flush()
+    filename  = os.path.join(FLAGS.demo_output_dir, 'demo1.mp4')
     clip      = mpe.ImageSequenceClip(filenames, fps=fps)
     clip.write_videofile(filename)
     print("Done!")
+    sys.stdout.flush()
