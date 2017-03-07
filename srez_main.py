@@ -145,51 +145,14 @@ def setup_tensorflow():
 
     return sess, summary_writer
 
-def _(checkpoint_dir, input_image_filename):
-    # Load checkpoint
-    if not tf.gfile.IsDirectory(checkpoint_dir):
-        raise FileNotFoundError("Could not find folder `%s'" % (checkpoint_dir,))
-
-    # Setup global tensorflow state
-    config = tf.ConfigProto(
-      log_device_placement=FLAGS.log_device_placement,
-      allow_soft_placement=True,
-    )
-    sess = tf.Session(config=config)
-
-    # Initialize rng with a deterministic seed
-    with sess.graph.as_default():
-        tf.set_random_seed(FLAGS.random_seed)
-
-    random.seed(FLAGS.random_seed)
-    np.random.seed(FLAGS.random_seed)
-
-    # Create and initialize model
-    [gene_minput, gene_moutput,
-     gene_output, gene_var_list,
-     disc_real_output, disc_fake_output, disc_var_list] = \
-            srez_model.create_model(sess, features, labels)
-
-    feed_dict = {gene_minput: test_feature}
-    gene_output = sess.run(td.gene_moutput, feed_dict=feed_dict)
-
-    # replace test_fea
-    _summarize_progress(td, test_feature, test_label, gene_output, batch,
-                        'out', max_samples=1)
-
-    # Restore variables from checkpoint
-    saver = tf.train.Saver()
-    filename = 'checkpoint_new.txt'
-    filename = os.path.join(FLAGS.checkpoint_dir, filename)
-    saver.restore(sess, filename)
-
 def _demo():
     # Load checkpoint
     if not tf.gfile.IsDirectory(FLAGS.checkpoint_dir):
         raise FileNotFoundError("Could not find folder `%s'" % (FLAGS.checkpoint_dir,))
 
     # Prepare directories
-    filenames = prepare_dirs(delete_train_dir=False)
+    #filenames = prepare_dirs(delete_train_dir=False)
+    filenames = ['/mnt/tmp/output.jpg']
 
     # Setup global tensorflow state
     sess, summary_writer = setup_tensorflow()
@@ -266,8 +229,8 @@ def main(argv=None):
     print("please use tensorflow version 1.0.0")
     exit(0)
   if FLAGS.run == 'demo':
-    #_demo()
-    srez_demo.demo1()
+    _demo()
+    #srez_demo.demo1()
   elif FLAGS.run == 'train':
     _train()
 
