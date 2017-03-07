@@ -1,5 +1,5 @@
 ## Introduction
-This project is an adaptation of srez project for floydhub. You will need a floydhub account and have floyd CLI installed. See https://www.floydhub.com/welcome.
+This project is an adaptation of srez project for floydhub. You will need a floydhub account and have floyd-cli installed. See https://www.floydhub.com/welcome.
 
 ## Setup project
 ```bash
@@ -8,29 +8,27 @@ $ cd srez
 $ floyd init srez
 ```
 
-## Train a model
+## Training
 
-For trainining we use celeba dataset.
-Large-scale CelebFaces Attributes (CelebA) Dataset
-http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
-
-download link:
-https://drive.google.com/uc?export=download&?id=0B7EVK8r0v71pZjFTYXZWM3FlRnMbuild.tar.xz
+The model is trained with [Large-scale CelebFaces Attributes (CelebA) Dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html).
+The dataset is available in floydhub with dataset ID (eVDcb9LTu755t3kP2JVpK4).
 
 ```bash
 floyd run --env tensorflow-1.0 --gpu --data eVDcb9LTu755t3kP2JVpK4 "python srez_main.py --run train --train_time 180"
 ```
 
-
-### Training data
-
-
-### Training
+After the model is trained, you will be able to check the progress of the model in the '/output/train' directory.
 
 ```bash
-$ floyd run --gpu --env tensorflow-1.0 --data "python srez_main.py --run train
+floyd run --env tensorflow-1.0 --data <dataset ID> "python srez_main.py --run=demo --train_dir=/input/model/sample_outputs --demo_output_dir=/output"
 ```
-del API
+
+### Pre-build model
+The dataset eVDcb9LTu755t3kP2JVpK4 also contains the model that was built fro 130,000,000 batches. The model is contained Tensorflow checkpoint file and can be accessed in '/input/model/...'. You can generate video file for the progression from the ...
+
+```bash
+floyd run --env tensorflow-1.0 --data <dataset ID> "python srez_main.py --run=demo --train_dir=/input/model/sample_outputs --demo_output_dir=/output"
+```
 
 You can now host this model as a REST API. This means you can send any image to this API as a HTTP request and it will be style transfered. 
 
