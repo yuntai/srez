@@ -55,7 +55,7 @@ floyd run --env tensorflow-1.0 --data yo5Gx9CA8AkAo4XL54fgJX "python srez_main.p
 ```
 
 Here is the link to the movie file hosted in Floydhub.
-![Training Video](https://www.floydhub.com/viewer/data/J6CtNCeRxMtzd2mi2jnnpT/CsU5XtPUokumiJX9Xs3qCb/demo1.mp4)
+[Training Video](https://www.floydhub.com/viewer/data/J6CtNCeRxMtzd2mi2jnnpT/CsU5XtPUokumiJX9Xs3qCb/demo1.mp4)
 
 ## Serve mode
 You can now host this model as a REST API. This means you can send any image to this API as a HTTP request and its resolution will be enhanced.
