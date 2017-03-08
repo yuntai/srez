@@ -10,7 +10,6 @@ import srez_input
 FLAGS = tf.app.flags.FLAGS
 FLAGS.batch_size = 1
 FLAGS.train_dir = "./train"
-FLAGS.checkpoint_dir = "/mnt/tmp/checkpoint"
 
 def get_input_feature(input_fn, out_dir="."):
   with tf.Session() as sess:
@@ -29,7 +28,7 @@ def get_input_feature(input_fn, out_dir="."):
   misc.toimage(img.reshape(list(img.shape)[1:]), cmin=0., cmax=1.).save(outfn)
   return img, sz, outfn
 
-def _downsample(input_filepath, output_filepath):
+def downsample(input_filepath, output_filepath):
   channels = 3; K = 4
 
   img = misc.imread(input_filepath)
@@ -39,7 +38,6 @@ def _downsample(input_filepath, output_filepath):
   image = tf.reshape(image, [1, h, w, channels])
   image = tf.cast(image, tf.float32)/255.0
   image = tf.image.resize_area(image, [h//K, w//K])
-  #image = tf.image.resize_nearest_neighbor(image, [h, w])
   image = tf.reshape(image, [h//K, w//K, channels])
 
   with tf.Session() as sess:
@@ -48,10 +46,11 @@ def _downsample(input_filepath, output_filepath):
 
   misc.toimage(image_out, cmin=0., cmax=1.).save(output_filepath)
 
-def srez_output(input_fn, output_fn, checkpoint_dir):
+def srez_output(input_fn, output_fn, checkpoint_file):
   input_image, sz, hackfn = get_input_feature(input_fn)
   # dummy files to satisfy input pipeline
-  filenames = ['000001.jpg']
+  # TODO: remove input pipeline
+  filenames = ['/input/data/sample.jpg']
 
   sess, summary_writer = setup_tensorflow()
   try:
@@ -62,19 +61,14 @@ def srez_output(input_fn, output_fn, checkpoint_dir):
             srez_model.create_model(sess, features, labels)
 
     saver = tf.train.Saver()
-    filename = 'checkpoint_new.txt'
-    filename = os.path.join(FLAGS.checkpoint_dir, filename)
-    saver.restore(sess, filename)
+    saver.restore(sess, checkpoint_file)
 
     feed_dict = {gene_minput: input_image}
     gene_output = sess.run(gene_moutput, feed_dict=feed_dict)
+
     gene_output = gene_output.reshape(list(gene_output.shape)[1:])
     misc.toimage(gene_output, cmin=0., cmax=1.).save(output_fn)
+  except tf.errors.CancelledError:
+    pass
   finally:
     sess.close()
-
-if __name__ == "__main__":
-  TEST_INPUT='/mnt/tmp/dn-051357.jpg'
-  TEST_OUTPUT='/mnt/tmp/output0.jpg'
-  TEST_CHECKPOINT_DIR='/mnt/tmp/checkpoint'
-  srez_output(TEST_INPUT, TEST_OUTPUT, TEST_CHECKPOINT_DIR)

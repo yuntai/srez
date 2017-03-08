@@ -229,8 +229,8 @@ def main(argv=None):
     print("please use tensorflow version 1.0.0")
     exit(0)
   if FLAGS.run == 'demo':
-    _demo()
-    #srez_demo.demo1()
+    #_demo()
+    srez_demo.demo1()
   elif FLAGS.run == 'train':
     _train()
 

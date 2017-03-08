@@ -16,14 +16,18 @@ from flask import Flask, send_file, request
 from werkzeug.exceptions import BadRequest
 from werkzeug.utils import secure_filename
 
+import app_helper
+
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
 app = Flask(__name__)
 
+CHECKPOINT_FILE='/input/checkpoint/checkpoint_new.txt'
 
-CHECKPOINT_FILE='/input/model/checkpoint/checkpoint_new.txt'
+os.makedirs('./images', exist_ok=True)
+os.makedirs('./output', exist_ok=True)
 
 @app.route('/<path:path>', methods=["POST"])
-def style_transfer(path):
+def srez(path):
     """
     Take the input image and style transfer it
     """
@@ -37,15 +41,18 @@ def style_transfer(path):
         return BadRequest("Invalid file type")
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        input_filepath = os.path.join('./images/', filename)
-        output_filepath = os.path.join('/output/', filename)
-        file.save(input_filepath)
 
-        downsample = request.form.get('downsample')
-        if downsample == '1':
-          _downsample(input_filepath, output_filepath)
+        input_filepath = os.path.join('./images/', filename)
+        output_filepath = os.path.join('./output/', filename)
+
+        file.save(input_filepath)
+        print("output_filepath=",output_filepath)
+
+        if 'downsample' == request.form.get('run'):
+          app_helper.downsample(input_filepath, output_filepath)
         else:
-          _srez_output(input_filepath, output_filepath, _CHECKPOINT_FILE)
+          # run = 'srez' or None
+          app_helper.srez_output(input_filepath, output_filepath, CHECKPOINT_FILE)
 
         # Get checkpoint filename from la_muse
         return send_file(output_filepath, mimetype='image/jpg')
@@ -57,3 +64,5 @@ def allowed_file(filename):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
+
+
