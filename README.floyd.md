@@ -92,7 +92,7 @@ The app support two run modes. With `run=downsample` the image is downsampled by
 curl -o 000001_downsampled.jpg -F "file=@./000001.jpg" -F "run=downsample" https://www.floydhub.com:8000/xtH75NqswHKuu3fVKWJ4La
 ```
 
-Send this image to app to get back reconstructed image.
+We are going to send this downscaled image back to the app to get a reconstructed image.
 ```bash
 curl -o output.jpg -F "file=@./000001_downsampled.jpg" https://www.floydhub.com:8000/xtH75NqswHKuu3fVKWJ4La
 ```
