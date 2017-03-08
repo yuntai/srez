@@ -47,7 +47,7 @@ floyd run --env tensorflow-1.0 --data <data id> "python srez_main.py --run=demo 
 
 You can check the produced video file in the output.
 
-In data volume prepared in Floydhub (yo5Gx9CA8AkAo4XL54fgJX) does also contain the pnf files generated during training with 130,000,000 batches. 
+In data volume prepared in Floydhub (yo5Gx9CA8AkAo4XL54fgJX) does also contain the pnf files generated during training with 130,000 batches. 
 
 To generate a video file,
 ```bash
